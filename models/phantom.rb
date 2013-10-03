@@ -5,6 +5,8 @@
 
 require 'digest/md5'
 require "securerandom"
+require "uri"
+require "pathname"
 
 class Phantom
 
@@ -51,14 +53,42 @@ class Phantom
 
     # 删除图片
     def destroy md5
-      
+      phantom = mock_phantom md5
+
+      if File.exist? phantom.final_file_path
+        FileUtils.rm(phantom.final_file_path)
+        rm_r
+        return {success: 1}
+      end
+    end
+
+    # 递归删除空文件夹
+    def rm_r
+      5.times do
+        Dir["#{Fin}/**/*"]
+          .select { |d| File.directory? d }                    
+          .select { |d| (Dir.entries(d) - %w[ . .. ]).empty? }
+          .each { |d| Dir.rmdir(d) if dir_empty?(d) }
+      end
     end
 
     # 查找图片
     def find md5
-      phantom = Phantom.new("http://www.baidu.com")
+      phantom = mock_phantom md5
+      phantom.final_url if File.exist? phantom.final_file_path
+    end
+
+    private
+
+    def dir_empty? path
+      (Dir.entries(path) - %w{. ..}).size.zero?
+    end
+
+    # 为调用实例方法 mock 实例
+    def mock_phantom md5
+      phantom = self.new("http://www.baidu.com")
       phantom.md5 = md5
-      { url: phantom.final_url } if File.exist? phantom.final_file_path
+      phantom
     end
   end
 
@@ -74,9 +104,13 @@ class Phantom
     self.md5[0..4].split(//) * '/'
   end
 
+  def final_file_name
+    "#{self.md5}.#{self.format}"
+  end
+
   def final_file_path
     return "" unless self.md5
-    File.join(Fin, final_file_directory, "#{self.md5}.#{self.format}")
+    File.join(Fin, final_file_directory, final_file_name)
   end
 
   def final_url

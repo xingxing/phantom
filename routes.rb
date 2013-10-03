@@ -29,3 +29,11 @@ get "/phantoms/:md5" do
     halt 404, "Sorry, such file doesn't exist!"
   end
 end
+
+get "/phantoms/del/:md5" do
+  if Phantom.destroy(params[:md5])
+    json({success: 1})
+  else
+    halt 404, "Sorry, such file doesn't exist!"
+  end
+end
