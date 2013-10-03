@@ -35,6 +35,9 @@ class Phantom
   class << self
     # 抓取图片
     # 1. 用phantomjs抓图片, 放到tmp下面随机生成uuid作为文件名
+    # 2. 对文件做MD5摘要
+    # 3. 取MD5前5个字母作为final_path e.g. public/images/3/1/7/c/8/8f6b2cec-b1a9-41fa-8c6f-8ef8a7216ac2.jpg
+    # 4. mv tmp_file to final_path
     def create opts={}
       phantom = Phantom.new(opts[:url], opts[:formate])
       phantom.genrate_image
@@ -47,13 +50,15 @@ class Phantom
     end
 
     # 删除图片
-    def destroy
+    def destroy md5
       
     end
 
     # 查找图片
     def find md5
-      
+      phantom = Phantom.new("http://www.baidu.com")
+      phantom.md5 = md5
+      { url: phantom.final_url } if File.exist? phantom.final_file_path
     end
   end
 
