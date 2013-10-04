@@ -14,8 +14,8 @@ end
 #  {success: 1, url: <IMAGE_URL>}
 #  {success: 0, reason: <String> }
 #  File stream
-get "/phantoms" do
-  phantom_json = Phantom.create(url: "http://www.tianji.com", formate: 'jpg')
+post "/phantoms" do
+  phantom_json = Phantom.create(url: params[:url], formate: params[:formate])
   phantom_json[:url] = url(phantom_json[:url]) if phantom_json[:url]
   json phantom_json
 end
@@ -30,7 +30,7 @@ get "/phantoms/:md5" do
   end
 end
 
-get "/phantoms/del/:md5" do
+delete "/phantoms/:md5" do
   if Phantom.destroy(params[:md5])
     json({success: 1})
   else

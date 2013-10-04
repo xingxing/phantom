@@ -33,6 +33,9 @@ require 'rack/test'
 $:.unshift File.expand_path('../../', __FILE__)
 $:.unshift File.expand_path('../../models/', __FILE__)
 
-RSpec.configure do |configuration|
-  configuration.include Rack::Test::Methods
+module RSpecMixin
+  include Rack::Test::Methods
+  def app() Sinatra::Application end
 end
+
+RSpec.configure { |c| c.include RSpecMixin }
