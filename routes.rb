@@ -8,7 +8,7 @@ $:.unshift(File.expand_path('../models/', __FILE__))
 require 'phantom'
 
 get "/" do
-  "<h1>It works!</h1>"
+  Phantom.all
 end
 
 #  {success: 1, url: <IMAGE_URL>}

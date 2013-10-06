@@ -58,11 +58,9 @@ class Phantom
 
     # 删除图片
     def destroy md5
-      phantom = mock_phantom md5
-
-      if File.exist? phantom.final_file_path
-        FileUtils.rm(phantom.final_file_path)
-        rm_recurse Pathname.new(phantom.final_file_path).split.first
+      if final_file_path=find(md5)
+        FileUtils.rm(final_file_path)
+        rm_recurse Pathname.new(final_file_path).split.first
         return {success: 1}
       end
     end
@@ -87,7 +85,11 @@ class Phantom
     # 查找图片
     def find md5
       phantom = mock_phantom md5
-      Phantom::PhantomExtname.map{|n| ".#{n}"}.map{|n| phantom.final_url.sub(/\..*$/, n)}.find_all{|n| File.exist? n }.first
+      Phantom::PhantomExtname.map{|n| ".#{n}"}.map{|n| phantom.final_file_path.sub(/\..*$/, n)}.find_all{|n| File.exist? n }.first
+    end
+
+    def all 
+      Dir["#{Pub}/**/*.*"].to_s
     end
 
     private
