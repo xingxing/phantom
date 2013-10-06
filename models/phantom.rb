@@ -13,11 +13,16 @@ class Phantom
   # 可执行文件位置
   PhantomjsExec = "phantomjs"
 
+  PhantomExtname = %w{ png jpeg jpg jpe jfif jfi jif gif pdf }
+
   # phantomjs 脚本位置
   PhantomjsPath = File.join(File.expand_path('../../lib', __FILE__), 'rasterize.js')
 
   # 临时文件 存放目录
   Tmp = File.expand_path('../../tmp', __FILE__)
+
+  # public directory path
+  Pub = File.expand_path('../../public', __FILE__)
 
   # 最终文件 存放目录
   Fin = File.expand_path('../../public/images', __FILE__)
@@ -57,25 +62,32 @@ class Phantom
 
       if File.exist? phantom.final_file_path
         FileUtils.rm(phantom.final_file_path)
-        rm_r
+        rm_recurse Pathname.new(phantom.final_file_path).split.first
         return {success: 1}
       end
     end
 
     # 递归删除空文件夹
-    def rm_r
-      5.times do
-        Dir["#{Fin}/**/*"]
+    def rm_recurse path
+
+      return false unless path.to_s =~ Regexp.new(Fin)
+
+      if path.to_s.eql?(Pub)
+        true
+      else
+        Dir["#{path}/*"]
           .select { |d| File.directory? d }                    
-          .select { |d| (Dir.entries(d) - %w[ . .. ]).empty? }
-          .each { |d| Dir.rmdir(d) if dir_empty?(d) }
+          .select { |d| dir_empty?(d) }
+          .each { |d| Dir.rmdir(d) }
+        
+        rm_recurse path.split.first
       end
     end
 
     # 查找图片
     def find md5
       phantom = mock_phantom md5
-      phantom.final_url if File.exist? phantom.final_file_path
+      Phantom::PhantomExtname.map{|n| ".#{n}"}.map{|n| phantom.final_url.sub(/\..*$/, n)}.find_all{|n| File.exist? n }.first
     end
 
     private
@@ -93,6 +105,7 @@ class Phantom
   end
 
   def genrate_image
+    # 偶然发现 sohu.com 总是执行异常
     raise(PhantomException::PhantomjsExecError, "Phantomjs execution error!") unless `#{PhantomjsExec} #{PhantomjsPath} #{url} #{self.tmp_file_path}` == "Success!\n"
   end
 
@@ -128,7 +141,7 @@ class Phantom
   end
   
   def valid_format
-    raise(PhantomException::IllegalFormat, "Beside PNG format, PhantomJS supports JPEG, GIF, and PDF.") unless %w{ png jpeg jpg jpe jfif jfi jif gif pdf }.include? @format.downcase
+    raise(PhantomException::IllegalFormat, "Beside PNG format, PhantomJS supports JPEG, GIF, and PDF.") unless PhantomExtname.include? @format.downcase
   end
 
 end
