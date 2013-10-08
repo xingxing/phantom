@@ -5,6 +5,14 @@ require "routes"
 describe "Phantom Application" do
   include Rack::Test::Methods
 
+
+  describe "GET /phantoms" do
+    it "should find all phantoms" do
+      expect(Phantom).to receive(:all)
+      get '/phantoms'
+    end
+  end
+
   describe "POST /phantoms" do
     it "should 创建 phantom" do
       expect(Phantom).to receive(:create).with(url: 'http://wadexing.com', formate: 'png')
@@ -12,11 +20,21 @@ describe "Phantom Application" do
     end
 
     context "when phantom 被创建成功" do
-      before { Phantom.stub(:create).and_return({success: 1, url: "/images/1/a/2/b/3/1a2b3sasad.png"}) }
+      before { Phantom.stub(:create).and_return({success: 1, url: "/images/1/a/2/b/3/1a2b3sasad.png", :path => "/path-to-image"}) }
 
-      it "should 给出url" do
-        post '/phantoms', url: 'http://wadexing.com', formate: 'png'
-        expect(last_response.body).to eq({success: 1, url: 'http://example.org/images/1/a/2/b/3/1a2b3sasad.png'}.to_json)
+      context "When 传了file_stream参数" do
+        it "should snd file" do
+          app.any_instance.stub(:send_file).and_return("sended file")
+          post '/phantoms', url: 'http://wadexing.com', formate: 'png', :file_stream => 1
+          expect(last_response.body).to eq("sended file")
+        end
+      end
+      
+      context "When 未传file_stream参数" do 
+        it "should 给出url" do
+          post '/phantoms', url: 'http://wadexing.com', formate: 'png'
+          expect(last_response.body).to eq({success: 1, url: 'http://example.org/images/1/a/2/b/3/1a2b3sasad.png', :path => "/path-to-image"}.to_json)
+        end
       end
     end
 

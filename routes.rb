@@ -7,7 +7,7 @@ $:.unshift(File.expand_path('../models/', __FILE__))
 
 require 'phantom'
 
-get "/" do
+get "/phantoms" do
   Phantom.all
 end
 
