@@ -18,7 +18,7 @@ post "/phantoms" do
   phantom_json = Phantom.create(url: params[:url], formate: params[:formate])
 
   if params[:file_stream]
-    send_file phantom_json[:path], type: params[:formate]
+    send_file phantom_json[:path], type: params[:formate], file_name: phantom_json[:md5]
   else
     phantom_json[:url] = url(phantom_json[:url]) if phantom_json[:url]
     json phantom_json
