@@ -51,7 +51,7 @@ class Phantom
       phantom.md5 = Digest::MD5.hexdigest(File.read(phantom.tmp_file_path))
       FileUtils.mkdir_p(File.join(Fin, phantom.final_file_directory))
       FileUtils.mv(phantom.tmp_file_path, phantom.final_file_path)
-      {success: 1, url: phantom.final_url}
+      {success: 1, url: phantom.final_url, :path => phantom.final_file_path}
     rescue Exception => e
       {success: 0, reason: e.message}
     end
