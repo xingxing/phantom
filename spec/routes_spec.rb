@@ -20,20 +20,28 @@ describe "Phantom Application" do
     end
 
     context "when phantom 被创建成功" do
-      before { Phantom.stub(:create).and_return({success: 1, url: "/images/1/a/2/b/3/1a2b3sasad.png", :path => "/path-to-image"}) }
+      before do
+        Phantom.stub(:create).and_return({success: 1, url: "/images/1/a/2/b/3/1a2b3sasad.png", path: "/path-to-image", md5: 'md5'}) 
+        File.stub!(:read).and_return('...')
+      end
 
       context "When 传了file_stream参数" do
-        it "should snd file" do
-          app.any_instance.stub(:send_file).and_return("sended file")
-          post '/phantoms', url: 'http://wadexing.com', formate: 'png', :file_stream => 1
-          expect(last_response.body).to eq("sended file")
+        it "should send file" do
+          expect(File).to receive(:read).with('/path-to-image')
+          post '/phantoms', url: 'http://wadexing.com', formate: 'png', file_stream: '1'
+          expect(last_response.body).to eq('...')
+        end
+
+        it "should delete file" do
+          expect(Phantom).to receive(:destroy).with('md5')
+          post '/phantoms', url: 'http://wadexing.com', formate: 'png', file_stream: '1'
         end
       end
       
       context "When 未传file_stream参数" do 
         it "should 给出url" do
           post '/phantoms', url: 'http://wadexing.com', formate: 'png'
-          expect(last_response.body).to eq({success: 1, url: 'http://example.org/images/1/a/2/b/3/1a2b3sasad.png', :path => "/path-to-image"}.to_json)
+          expect(last_response.body).to eq({success: 1, url: 'http://example.org/images/1/a/2/b/3/1a2b3sasad.png', :path => "/path-to-image", md5: 'md5'}.to_json)
         end
       end
     end

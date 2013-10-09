@@ -85,8 +85,8 @@ describe Phantom do
         end
       end
 
-      it "should 返回hash{success: 1, url: '/images/3/1/7/c/8/317c86ee553826fe782fd3abcd1bbb65.jpg', path: '/RailsPro/phantom/public/images/1/a/2/b/3/1a2b3123123123.jpg'}" do
-        expect(Phantom.create(url: url, formate: 'jpg')).to eql({success: 1, url: '/images/1/a/2/b/3/1a2b3123123123.jpg', path: @phantom.final_file_path})
+      it "should 返回hash{success: 1, url: '/images/3/1/7/c/8/317c86ee553826fe782fd3abcd1bbb65.jpg', path: '/RailsPro/phantom/public/images/1/a/2/b/3/1a2b3123123123.jpg' md5: '1a2b3123123123'}" do
+        expect(Phantom.create(url: url, formate: 'jpg')).to eql({success: 1, url: '/images/1/a/2/b/3/1a2b3123123123.jpg', path: @phantom.final_file_path, md5: '1a2b3123123123'})
       end
     end
 
