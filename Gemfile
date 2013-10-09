@@ -2,6 +2,7 @@ source 'http://ruby.taobao.org'
 
 gem "sinatra", "~> 1.4.3"
 gem "sinatra-contrib", "~> 1.4.1"
+gem "unicorn", "~> 4.6.3"
 
 group :test do
   gem 'rspec',  '~> 2.14.1'

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'sinatra'
 require 'sinatra/json'
-configure { set :server, :puma }
 
 $:.unshift(File.expand_path('../models/', __FILE__))
 
