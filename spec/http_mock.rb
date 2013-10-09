@@ -3,12 +3,12 @@ require "typhoeus"
 require "pry"
 
 r = Typhoeus::Request.new(
-  "localhost:4567/phantoms",
+  "http://10.40.13.60:4567/phantoms",
   :method => :post,
+  :proxy  => "10.40.13.253:3128",
   :params => {
-    :url => 'http://www.baidu.com', 
-    :formate => 'jpg',
-    :file_stream => 1})
+    :url => 'http://www.pandai.com', 
+    :formate => 'jpg'})
 
 hydra = Typhoeus::Hydra.hydra
 hydra.queue(r)
